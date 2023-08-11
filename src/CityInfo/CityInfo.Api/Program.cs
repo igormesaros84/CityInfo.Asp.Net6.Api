@@ -10,9 +10,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// This will create the web application
+// app inherits from `IApplicationBuilder` 
+// This enables us to configure the applications request pipelines
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+// Bellow are the configurations for different middlewares (the applications request pipeline)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
