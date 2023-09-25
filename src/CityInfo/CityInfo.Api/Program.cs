@@ -1,14 +1,25 @@
+using Microsoft.AspNetCore.StaticFiles;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Built in dependency injection
 
 // Register services that are required for API's
-builder.Services.AddControllers();
+builder.Services.AddControllers(
+    options => 
+        // When requesting value to be in different format ie. `application/xml` it will still return JSON unless this is configured
+        // with this the return will be 406 Not Acceptable
+        options.ReturnHttpNotAcceptable = true
+    )
+    // Add support for xml format
+    .AddXmlDataContractSerializerFormatters();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// Can be used to dynamically set the content type when downloading files based on the extension
+builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 
 // This will create the web application
 // app inherits from `IApplicationBuilder` 
@@ -25,8 +36,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseEndpoints(endpoints => endpoints.MapControllers());
 
 app.Run();
