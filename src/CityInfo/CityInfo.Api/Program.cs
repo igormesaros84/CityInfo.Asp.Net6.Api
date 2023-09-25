@@ -4,7 +4,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Built in dependency injection
 
 // Register services that are required for API's
-builder.Services.AddControllers();
+builder.Services.AddControllers(
+    options => 
+        // When requesting value to be in different format ie. `application/xml` it will still return JSON unless this is configured
+        // with this the return will be 406 Not Acceptable
+        options.ReturnHttpNotAcceptable = true
+    )
+    // Add support for xml format
+    .AddXmlDataContractSerializerFormatters();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
