@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CityInfo.Api.Controllers;
-[Route("api/cities/{cityid}/pointsofinterest")]
+[Route("api/cities/{cityId}/pointsofinterest")]
 [ApiController]
 public class PointsOfInterestController : ControllerBase
 {
@@ -20,7 +20,7 @@ public class PointsOfInterestController : ControllerBase
         return Ok(city.PointsOfInterest);
     }
 
-    [HttpGet("{pointofinterestid}")]
+    [HttpGet("{pointOfInterestId}")]
     public ActionResult<PointOfInterestDto> GetPointOfInterest(int cityId, int pointOfInterestId)
     {
          var city = CitiesDataStore.Instance.Cities.Find(c => c.Id == cityId);
