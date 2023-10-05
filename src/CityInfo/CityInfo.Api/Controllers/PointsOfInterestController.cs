@@ -1,5 +1,6 @@
 ﻿using CityInfo.Api.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CityInfo.Api.Controllers;
@@ -80,6 +81,47 @@ public class PointsOfInterestController : ControllerBase
 
         pointOfInterestFromStore.Name = pointOfInterest.Name;
         pointOfInterestFromStore.Description = pointOfInterest.Description;
+
+        return NoContent();
+    }
+
+    [HttpPatch("{pointOfInterestId}")]
+    public ActionResult PartiallypdatePointOfInterest(
+        int cityId, int pointOfInterestId, JsonPatchDocument<PointOfInterestForUpdateDto> patchDocument)
+    {
+        var city = CitiesDataStore.Instance.Cities.Find(c => c.Id == cityId);
+        if( city == null)
+        {
+            return NotFound();
+        }
+
+        var pointOfInterestFromStore = city.PointsOfInterest.FirstOrDefault(c => c.Id == pointOfInterestId);
+        if (pointOfInterestFromStore == null)
+        {
+            return NotFound();
+        }
+
+        var pointOfinterestToPatch = new PointOfInterestForUpdateDto()
+        {
+            Name = pointOfInterestFromStore.Name,
+            Description = pointOfInterestFromStore.Description,
+        };
+        patchDocument.ApplyTo(pointOfinterestToPatch, ModelState);
+
+        // This validates if the JsonPatchDocument is valid
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        // Need to alidate the Dto as the above check wont let us know if for example the name is set to null however that is arequired field
+        if (!TryValidateModel(pointOfinterestToPatch))
+        {
+            return BadRequest(ModelState);
+        }
+
+        pointOfInterestFromStore.Name = pointOfinterestToPatch.Name;
+        pointOfInterestFromStore.Description = pointOfinterestToPatch.Description;
 
         return NoContent();
     }
