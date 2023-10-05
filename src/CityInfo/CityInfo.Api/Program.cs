@@ -11,7 +11,7 @@ builder.Services.AddControllers(
         // When requesting value to be in different format ie. `application/xml` it will still return JSON unless this is configured
         // with this the return will be 406 Not Acceptable
         options.ReturnHttpNotAcceptable = true
-    )
+    ).AddNewtonsoftJson()
     // Add support for xml format
     .AddXmlDataContractSerializerFormatters();
 
