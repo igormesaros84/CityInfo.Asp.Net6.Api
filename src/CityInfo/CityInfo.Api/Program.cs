@@ -1,7 +1,17 @@
 using Microsoft.AspNetCore.StaticFiles;
+using Serilog;
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .WriteTo.File("logs/cityinfo.txt" , rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// User serilog
+builder.Host.UseSerilog();
 // Add services to the container.
 // Built in dependency injection
 
