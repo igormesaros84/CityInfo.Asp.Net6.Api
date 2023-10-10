@@ -10,9 +10,9 @@ namespace CityInfo.Api.Controllers;
 public class PointsOfInterestController : ControllerBase
 {
     private readonly ILogger<PointsOfInterestController> _logger;
-    private readonly LocalMailService _localMailService;
+    private readonly IMailService _localMailService;
 
-    public PointsOfInterestController(ILogger<PointsOfInterestController> logger, LocalMailService localMailService)
+    public PointsOfInterestController(ILogger<PointsOfInterestController> logger, IMailService localMailService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _localMailService = localMailService ?? throw new ArgumentNullException(nameof(localMailService));
@@ -148,7 +148,7 @@ public class PointsOfInterestController : ControllerBase
     [HttpDelete("{pointOfInterestId}")]
     public ActionResult DeletePointOfInterst(int cityId, int pointOfInterestId)
     {
-                var city = CitiesDataStore.Instance.Cities.Find(c => c.Id == cityId);
+        var city = CitiesDataStore.Instance.Cities.Find(c => c.Id == cityId);
         if( city == null)
         {
             return NotFound();
@@ -161,7 +161,7 @@ public class PointsOfInterestController : ControllerBase
         }
 
         city.PointsOfInterest.Remove(pointOfInterestFromStore);
-        _localMailService.Send("Point of interest deleted", $"Point of interest {pointOfInterestId} was deleted from city Id: {cityId}")
+        _localMailService.Send("Point of interest deleted", $"Point of interest {pointOfInterestId} was deleted from city Id: {cityId}");
         return NoContent();
     }
 }
