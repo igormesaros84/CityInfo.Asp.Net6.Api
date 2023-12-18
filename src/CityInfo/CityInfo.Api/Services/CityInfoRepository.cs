@@ -27,6 +27,10 @@ public class CityInfoRepository : ICityInfoRepository
         return await _context.Cities.Where(c => c.Id == id).FirstOrDefaultAsync();
     }
 
+    public async Task<bool> CityExistsAsync(int cityId)
+    {
+        return await _context.Cities.AnyAsync(c => c.Id == cityId);
+    }
     public async Task<IEnumerable<PointOfInterest>> GetPointOfInterestForCityAsync(int cityId)
     {
         return await _context.PointsOfInterest.Where(p => p.CityId ==  cityId).ToListAsync();
