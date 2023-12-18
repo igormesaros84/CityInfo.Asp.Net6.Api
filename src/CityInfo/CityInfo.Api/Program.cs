@@ -45,7 +45,9 @@ builder.Services.AddSingleton<CitiesDataStore>();
 
 // SqlLiteDb connection string is just as simple as this
 // other providers might have different connection strings that can be found in the documentation
-builder.Services.AddDbContext<CityInfoContext>(options => options.UseSqlite("Data Source=CityInfo.db"));
+builder.Services.AddDbContext<CityInfoContext>(options =>
+    options.UseSqlite(builder.Configuration["ConnectionStrings:CityInfoDbConnectionString"]));
+builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
 // This will create the web application
 // app inherits from `IApplicationBuilder` 
 // This enables us to configure the applications request pipelines
