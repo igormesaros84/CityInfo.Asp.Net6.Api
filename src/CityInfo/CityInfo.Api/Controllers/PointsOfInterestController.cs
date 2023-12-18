@@ -106,46 +106,43 @@ public class PointsOfInterestController : ControllerBase
         return NoContent();
     }
 
-    //[HttpPatch("{pointOfInterestId}")]
-    //public ActionResult PartiallypdatePointOfInterest(
-    //    int cityId, int pointOfInterestId, JsonPatchDocument<PointOfInterestForUpdateDto> patchDocument)
-    //{
-    //    var city = _cityInfoRepository.Cities.Find(c => c.Id == cityId);
-    //    if( city == null)
-    //    {
-    //        return NotFound();
-    //    }
+    [HttpPatch("{pointOfInterestId}")]
+    public async Task<ActionResult> PartiallypdatePointOfInterest(
+        int cityId, int pointOfInterestId, JsonPatchDocument<PointOfInterestForUpdateDto> patchDocument)
+    {
+        if (! await _cityInfoRepository.CityExistsAsync(cityId))
+        {
+            return NotFound();
+        }
 
-    //    var pointOfInterestFromStore = city.PointsOfInterest.FirstOrDefault(c => c.Id == pointOfInterestId);
-    //    if (pointOfInterestFromStore == null)
-    //    {
-    //        return NotFound();
-    //    }
+        var pointOfInterestEntity = await _cityInfoRepository.GetPointOfInterestForCityAsync(cityId, pointOfInterestId);
+        if (pointOfInterestEntity == null)
+        {
+            return NotFound();
+        }
 
-    //    var pointOfinterestToPatch = new PointOfInterestForUpdateDto()
-    //    {
-    //        Name = pointOfInterestFromStore.Name,
-    //        Description = pointOfInterestFromStore.Description,
-    //    };
-    //    patchDocument.ApplyTo(pointOfinterestToPatch, ModelState);
+        var pointOfInterestToPatch = _mapper.Map<PointOfInterestForUpdateDto>(pointOfInterestEntity);
 
-    //    // This validates if the JsonPatchDocument is valid
-    //    if (!ModelState.IsValid)
-    //    {
-    //        return BadRequest(ModelState);
-    //    }
+        patchDocument.ApplyTo(pointOfInterestToPatch, ModelState);
 
-    //    // Need to alidate the Dto as the above check wont let us know if for example the name is set to null however that is arequired field
-    //    if (!TryValidateModel(pointOfinterestToPatch))
-    //    {
-    //        return BadRequest(ModelState);
-    //    }
+        // This validates if the JsonPatchDocument is valid
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
-    //    pointOfInterestFromStore.Name = pointOfinterestToPatch.Name;
-    //    pointOfInterestFromStore.Description = pointOfinterestToPatch.Description;
+        // Need to alidate the Dto as the above check wont let us know if for example the name is set to null however that is arequired field
+        if (!TryValidateModel(pointOfInterestToPatch))
+        {
+            return BadRequest(ModelState);
+        }
 
-    //    return NoContent();
-    //}
+        _mapper.Map(pointOfInterestToPatch, pointOfInterestEntity);
+
+        await _cityInfoRepository.SaveChangesAsync();
+
+        return NoContent();
+    }
 
     //[HttpDelete("{pointOfInterestId}")]
     //public ActionResult DeletePointOfInterst(int cityId, int pointOfInterestId)
