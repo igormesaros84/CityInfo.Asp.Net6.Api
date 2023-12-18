@@ -85,26 +85,26 @@ public class PointsOfInterestController : ControllerBase
             createdPointOfInterestToReturn);
     }
 
-    //[HttpPut("{pointOfInterestId}")]
-    //public ActionResult UpdatePointOfInterest(int cityId, int pointOfInterestId, PointOfInterestForUpdateDto pointOfInterest)
-    //{
-    //    var city = _cityInfoRepository.Cities.Find(c => c.Id == cityId);
-    //    if( city == null)
-    //    {
-    //        return NotFound();
-    //    }
+    [HttpPut("{pointOfInterestId}")]
+    public async Task<ActionResult> UpdatePointOfInterest(int cityId, int pointOfInterestId, PointOfInterestForUpdateDto pointOfInterest)
+    {
+        if (! await _cityInfoRepository.CityExistsAsync(cityId))
+        {
+            return NotFound();
+        }
 
-    //    var pointOfInterestFromStore = city.PointsOfInterest.FirstOrDefault(c => c.Id == pointOfInterestId);
-    //    if (pointOfInterestFromStore == null)
-    //    {
-    //        return NotFound();
-    //    }
+        var pointOfInterestEntity = await _cityInfoRepository.GetPointOfInterestForCityAsync(cityId, pointOfInterestId);
+        if (pointOfInterestEntity == null)
+        {
+            return NotFound();
+        }
 
-    //    pointOfInterestFromStore.Name = pointOfInterest.Name;
-    //    pointOfInterestFromStore.Description = pointOfInterest.Description;
+        _mapper.Map(pointOfInterest, pointOfInterestEntity);
 
-    //    return NoContent();
-    //}
+        await _cityInfoRepository.SaveChangesAsync();
+
+        return NoContent();
+    }
 
     //[HttpPatch("{pointOfInterestId}")]
     //public ActionResult PartiallypdatePointOfInterest(
