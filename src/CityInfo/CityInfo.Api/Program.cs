@@ -1,6 +1,8 @@
 using CityInfo.Api;
+using CityInfo.Api.DbContexts;
 using CityInfo.Api.Services;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 // Configure Serilog
@@ -41,6 +43,11 @@ builder.Services.AddTransient<IMailService, CloudMailService>();
 
 builder.Services.AddSingleton<CitiesDataStore>();
 
+// SqlLiteDb connection string is just as simple as this
+// other providers might have different connection strings that can be found in the documentation
+builder.Services.AddDbContext<CityInfoContext>(options =>
+    options.UseSqlite(builder.Configuration["ConnectionStrings:CityInfoDbConnectionString"]));
+builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
 // This will create the web application
 // app inherits from `IApplicationBuilder` 
 // This enables us to configure the applications request pipelines
