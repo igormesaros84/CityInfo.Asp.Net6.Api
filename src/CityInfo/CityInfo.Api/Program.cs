@@ -50,7 +50,7 @@ builder.Services.AddDbContext<CityInfoContext>(options =>
 // This will create the web application
 // app inherits from `IApplicationBuilder` 
 // This enables us to configure the applications request pipelines
-
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ICityInfoRepository, CityInfoRepository>();
 
 var app = builder.Build();
