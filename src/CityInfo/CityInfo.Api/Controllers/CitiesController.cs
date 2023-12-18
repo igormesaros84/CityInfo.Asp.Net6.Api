@@ -1,4 +1,5 @@
 ﻿using CityInfo.Api.Models;
+using CityInfo.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CityInfo.Api.Controllers;
@@ -7,29 +8,42 @@ namespace CityInfo.Api.Controllers;
 [Route("api/cities")]
 public class CitiesController : ControllerBase
 {
-    private readonly CitiesDataStore _citiesDataStore;
+    private readonly ICityInfoRepository _cityInfoRepository;
 
-    public CitiesController(CitiesDataStore citiesDataStore)
+    public CitiesController(ICityInfoRepository cityInfoRepository)
     {
-        _citiesDataStore = citiesDataStore ?? throw new ArgumentNullException(nameof(citiesDataStore));
+        _cityInfoRepository = cityInfoRepository ?? throw new ArgumentNullException(nameof(cityInfoRepository));
     }
     [HttpGet]
-    public ActionResult<CityDto[]> GetCities()
+    public async Task<ActionResult<IEnumerable<CityWithoutPointsOfInterestDto>>> GetCities()
     {
-        return Ok(_citiesDataStore.Cities);
-    }
+        var cityEntities = await _cityInfoRepository.GetCitiesAsync();
 
-    [HttpGet("{id}")]
-    public ActionResult<CityDto> GetCity(int id)
-    {
-        var city = _citiesDataStore.Cities.Find(c => c.Id == id);
-
-        if (city == null)
+        var results = new List<CityWithoutPointsOfInterestDto>();
+        foreach ( var city in cityEntities)
         {
-            return NotFound();
+            results.Add(new CityWithoutPointsOfInterestDto()
+                {
+                    Id = city.Id,
+                    Description = city.Description,
+                    Name = city.Name,
+                });
         }
 
-        return Ok(city);
-            
+        return Ok(results);
     }
+
+    //[HttpGet("{id}")]
+    //public ActionResult<CityDto> GetCity(int id)
+    //{
+    //    var city = _cityInfoRepository.Cities.Find(c => c.Id == id);
+
+    //    if (city == null)
+    //    {
+    //        return NotFound();
+    //    }
+
+    //    return Ok(city);
+            
+    //}
 }
