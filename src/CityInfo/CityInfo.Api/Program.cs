@@ -47,10 +47,12 @@ builder.Services.AddSingleton<CitiesDataStore>();
 // other providers might have different connection strings that can be found in the documentation
 builder.Services.AddDbContext<CityInfoContext>(options =>
     options.UseSqlite(builder.Configuration["ConnectionStrings:CityInfoDbConnectionString"]));
-builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
 // This will create the web application
 // app inherits from `IApplicationBuilder` 
 // This enables us to configure the applications request pipelines
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<ICityInfoRepository, CityInfoRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
