@@ -3,7 +3,9 @@ using CityInfo.Api.DbContexts;
 using CityInfo.Api.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Text;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -53,6 +55,31 @@ builder.Services.AddDbContext<CityInfoContext>(options =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ICityInfoRepository, CityInfoRepository>();
 
+// Setting up the authentication Middleware
+builder.Services.AddAuthentication("Bearer").AddJwtBearer(
+    options => 
+    {
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Authentication:Issuer"],
+            ValidAudience = builder.Configuration["Authentication:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.ASCII.GetBytes(builder.Configuration["Authentication:SecretForKey"]))
+        };
+
+    });
+
+builder.Services.AddAuthorization(option => 
+    option.AddPolicy("MustBeeFromAntwerp", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("city", "Antwerp");
+    })
+);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -67,6 +94,9 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
+// Add the authentication middleware to the request pipeline
+app.UseAuthentication();
+// Order matters so we want to make sure we are authenticated before we Authorize
 app.UseAuthorization();
 
 app.UseEndpoints(endpoints => endpoints.MapControllers());
