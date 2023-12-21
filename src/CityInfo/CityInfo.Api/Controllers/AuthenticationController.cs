@@ -81,6 +81,6 @@ public class AuthenticationController : Controller
     private CityInfoUser ValidateUserCredentials(string? username, string? password)
     {
         // we dont have a user DB or table. This is just for demo purposes
-        return new CityInfoUser(1, username ?? "", "Igor", "M", "London");
+        return new CityInfoUser(1, username ?? "", "Igor", "M", "Antwerp");
     }
 }
